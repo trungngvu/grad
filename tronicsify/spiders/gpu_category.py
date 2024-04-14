@@ -8,7 +8,8 @@ class GpuCategorySpider(scrapy.Spider):
     start_urls = ["https://www.techpowerup.com/gpu-specs/?ajaxsrch=rx",
                   "https://www.techpowerup.com/gpu-specs/?ajaxsrch=rtx", 
                   "https://www.techpowerup.com/gpu-specs/?ajaxsrch=gtx%2016",
-                  "https://www.techpowerup.com/gpu-specs/?ajaxsrch=gt%2010",]
+                  "https://www.techpowerup.com/gpu-specs/?ajaxsrch=gt%2010",
+                  "https://www.techpowerup.com/gpu-specs/?mfgr=Intel&mobile=No&workstation=No&memtype=GDDR6&sort=name&ajax=1"]
     download_delay = 10
     
 
@@ -24,7 +25,7 @@ class GpuCategorySpider(scrapy.Spider):
         
         def strip_graphics_info(string):
             # Define patterns to match "geforce", "nvidia", "RTX", and "GTX" case insensitively
-            patterns = ['radeon', 'rx' , 'amd', 'geforce', 'nvidia', 'rtx', 'gtx' , 'quadro', "ada", "generation"]
+            patterns = ['radeon', 'rx' , 'amd', 'geforce', 'nvidia', 'rtx', 'gtx' , 'quadro', "ada", "generation", 'arc', 'intel']
             
             # Construct the regular expression pattern
             pattern = '|'.join(r'\b{}\b'.format(re.escape(p)) for p in patterns)
@@ -36,9 +37,10 @@ class GpuCategorySpider(scrapy.Spider):
                
         gpu_category =  GPUCategory()
         
-        gpu_category['gpu'] = response.css('.gpudb-name ::text').get().strip()  
-        gpu_category['brand'] = 'amd' if 'amd' in response.css('.gpudb-name ::text').get().strip().lower() else "nvidia"
-        gpu_category['keyword'] = strip_graphics_info(response.css('.gpudb-name ::text').get().strip())
+        title = response.css('.gpudb-name ::text').get().strip().lower()
+        gpu_category['gpu'] = title
+        gpu_category['brand'] = 'amd' if 'amd' in title else 'nvidia' if 'nvidia' in title else 'intel' if 'intel' in title else None
+        gpu_category['keyword'] = strip_graphics_info(title)
         number = re.findall(r'\d+', response.xpath('//section[@class="details"]//dl[dt="TDP"]/dd/text()').get())
         gpu_category['tdp'] = int(number[0])
         number = re.findall(r'\d+', response.xpath('//section[@class="details"]//dl[dt="Memory Size"]/dd/text()').get())

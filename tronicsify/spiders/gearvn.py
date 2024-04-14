@@ -6,9 +6,9 @@ class GearvnSpider(scrapy.Spider):
     name = "gearvn"
     allowed_domains = ["gearvn.com"]
     
-    # categories = [ "ram-pc"]
-    categories = ["cpu-bo-vi-xu-ly","vga-card-man-hinh", "mainboard-bo-mach-chu", "psu-nguon-may-tinh", "ram-pc", "tan-nhiet-nuoc-240mm" , "tan-nhiet-nuoc-280mm"
-                  , "tan-nhiet-nuoc-360mm", "tan-nhiet-nuoc-420mm", "tan-nhiet-khi", 'hdd-o-cung-pc', 'ssd-o-cung-the-ran', 'case-thung-may-tinh']
+    categories = []
+    # categories = ["cpu-bo-vi-xu-ly","vga-card-man-hinh", "mainboard-bo-mach-chu", "psu-nguon-may-tinh", "ram-pc", "tan-nhiet-nuoc-240mm" , "tan-nhiet-nuoc-280mm"
+    #               , "tan-nhiet-nuoc-360mm", "tan-nhiet-nuoc-420mm", "tan-nhiet-khi", 'hdd-o-cung-pc', 'ssd-o-cung-the-ran', 'case-thung-may-tinh']
 
     def gen_url(self, category, page):
         return "https://gearvn.com/collections/" + category + "/products.json?include=metafields[product]&limit=50&page=" + str(page)

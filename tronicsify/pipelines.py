@@ -110,7 +110,7 @@ class ProductsPipeline:
             if isinstance(item, PSUItem):  
                 wattage = re.search(r'\d+W', adapter['title'] )
                 if wattage:
-                    adapter['wattage'] = wattage.group()[:-1]
+                    adapter['wattage'] = int(wattage.group()[:-1])
                     
             if adapter.get('long_specs', None):
                 long_specs = str(adapter['long_specs']) 
@@ -164,7 +164,7 @@ class ProductsPipeline:
 
                         # Convert TB to GB if unit is TB
                         if unit == 'TB' or unit == 'tb' or unit == 'Tb':
-                            capacity *= 1000
+                            capacity *= 1024
 
                         return capacity
                     else:

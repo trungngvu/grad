@@ -83,7 +83,7 @@ class PhongvuSpider(scrapy.Spider):
             item = MainboardItem()
         elif item_type == 'ram':
             item = RAMItem()  
-            item['capacity'] = next((item for item in attributeGroups if item["id"] == 6276), None)          
+        
         elif item_type == 'psu':
             item = PSUItem()   
         elif item_type == 'case':

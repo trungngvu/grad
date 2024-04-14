@@ -19,7 +19,7 @@ class CpuIntelSpider(scrapy.Spider):
 
     def parse(self, response):
         links = response.css('.add-compare-wrap a ::attr(href)')
-        for link in links[:100]:
+        for link in links:
             yield scrapy.Request("https://ark.intel.com" + link.get() , self.parse_item, headers=self.header)
 
     custom_settings = {
