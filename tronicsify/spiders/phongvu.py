@@ -1,14 +1,14 @@
 import scrapy
 import json
-from tronicsify.items import GPUItem
-
+from tronicsify.items import GPUItem, CPUItem, MainboardItem, PSUItem, RAMItem, CoolerItem, CaseItem, DiskItem
 
 class PhongvuSpider(scrapy.Spider):
     name = "phongvu"
     allowed_domains = ["phongvu.vn","discovery.tekoapis.com"]
     
     url = "https://discovery.tekoapis.com/api/v2/search-skus-v2"
-    categories = ["/c/vga-card-man-hinh"]
+    categories = ["cpu", "vga-card-man-hinh", "mainboard-bo-mach-chu", "psu-nguon-may-tinh" ,"ram", "tan-nhiet-khi", "tan-nhiet-nuoc", "case",
+                  "o-cung-ssd", "o-cung-hdd"]
 
     header = {
     ':authority':'discovery.tekoapis.com',
@@ -36,8 +36,12 @@ class PhongvuSpider(scrapy.Spider):
             payload = {            
                 "terminalId": 4,
                 "pageSize": 5000,
-                "slug": category
+                "slug": "/c/" + category
             }    
+            if "hdd" in category:
+                payload['filter'] = {'attributes': [{'code': "ocung_phanloai", 'optionIds': ["5930"]}]}
+            elif "ssd" in category:
+                payload['filter'] = {'attributes': [{'code': "ocung_phanloai", 'optionIds': ["5929"]}]}
             yield scrapy.Request(self.url, self.parse, method="POST", body=json.dumps(payload), headers=self.header)
 
     def parse(self, response):
@@ -47,39 +51,59 @@ class PhongvuSpider(scrapy.Spider):
         
         for product in products:
             prod_url = "https://discovery.tekoapis.com/api/v1/product?sku=" + product.get('sku') + "&location=&terminalCode=phongvu"
+            meta= {}
             match category: 
-                case "/c/vga-card-man-hinh":  yield scrapy.Request(prod_url, self.parse_gpu, headers=self.header)
+                case "/c/vga-card-man-hinh":  meta={'item_type': 'gpu'}
+                case "/c/cpu":  meta={'item_type': 'cpu'}
+                case "/c/mainboard-bo-mach-chu":  meta={'item_type': 'main'}
+                case "/c/psu-nguon-may-tinh":  meta={'item_type': 'psu'}
+                case "/c/ram":  meta={'item_type': 'ram'}
+                case "/c/case":  meta={'item_type': 'case'}
+                case "/c/tan-nhiet-khi":  meta={'item_type': 'cooler', 'sub': 'air'}
+                case "/c/tan-nhiet-nuoc":  meta={'item_type': 'cooler', 'sub': 'air'}
+                case "/c/o-cung-ssd":  meta={'item_type': 'disk', 'sub': 'ssd'}
+                case "/c/o-cung-hdd":  meta={'item_type': 'disk', 'sub': 'ssd'}
+            yield scrapy.Request(prod_url, self.parse_item, headers=self.header, meta=meta)     
 
-    def parse_gpu(self, response):
+    def parse_item(self, response):
         # Process the response from the POST request
         # You can extract data or perform further parsing here
         result_data = json.loads(response.body)      
-        gpu_item = GPUItem()
-        
+        item_type = response.meta['item_type']
         product = result_data.get('result').get('product')
         info = product.get('productInfo')
         detail = product.get('productDetail')
-
-        gpu_item['url']= "https://phongvu.vn/" + info.get('canonical'),
-        gpu_item['title'] = info.get('name'),
-        gpu_item['prod_id'] = info.get('sku'),
-        gpu_item['warranty'] = info.get('warranty').get('months'),
-        gpu_item['availability'] = product.get('totalAvailable') 
-        gpu_item['num_reviews'] = None
-        gpu_item['stars'] = None
-        gpu_item['price'] = product.get('prices')[0].get('sellPrice') if product.get('prices') else None
-        gpu_item['short_specs'] = detail.get('shortDescription')
-        gpu_item['long_specs'] = detail.get('attributeGroups')
-        gpu_item['num_comments'] = None
-        gpu_item['views'] = None
-        gpu_item['brand'] = info.get('brand').get('name')
+        attributeGroups = detail.get('attributeGroups')
         
-        for i in detail.get('attributeGroups'):
-            match i.get('name'):
-                case "GPU": gpu_item['gpu'] = i.get('value')
-                case "Part-number": gpu_item['model'] = i.get('value')
-                case "Nguồn đề xuất":  gpu_item['tdp'] = i.get('value')
+        if item_type == 'cpu':
+            item = CPUItem()
+        elif item_type == 'gpu':
+            item = GPUItem()
+        elif item_type == 'main':
+            item = MainboardItem()
+        elif item_type == 'ram':
+            item = RAMItem()  
+            item['capacity'] = next((item for item in attributeGroups if item["id"] == 6276), None)          
+        elif item_type == 'psu':
+            item = PSUItem()   
+        elif item_type == 'case':
+            item = CaseItem()              
+        elif item_type == 'cooler':
+            item = CoolerItem()
+            item['sub_category'] = response.meta['sub']  
+        elif item_type == 'disk':
+            item = DiskItem()
+            item['sub_category'] = response.meta['sub']  
 
-        gpu_item['imgs']= detail.get('images')
+        item['url']= "https://phongvu.vn/" + info.get('canonical')
+        item['title'] = info.get('displayName')
+        item['warranty'] = str(info.get('warranty').get('months')) + " tháng"
+        item['availability'] = "False" if product.get('totalAvailable') == 0 else "True" 
+        item['price'] = product.get('prices')[0].get('sellPrice') if product.get('prices') else None
+        item['short_specs'] = detail.get('shortDescription')
+        item['long_specs'] = attributeGroups
+        item['description'] = detail.get('description')
+        item['brand'] = info.get('brand').get('name')
+        item['imgs']= [item.get('url') for item in detail.get('images')]
 
-        yield gpu_item
+        yield item
