@@ -25,7 +25,7 @@ class ProductsPipeline:
     def __init__(self):
         # Get the database using the method we defined in pymongo_test_insert file
         self.dbname = get_database()
-        self.productsCollectionName = "products"
+        self.productsCollectionName = "products_test"
         self.products_collection = self.dbname[self.productsCollectionName]
         
     def process_item(self, item, spider):

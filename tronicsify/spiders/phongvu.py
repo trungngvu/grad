@@ -52,17 +52,23 @@ class PhongvuSpider(scrapy.Spider):
         for product in products:
             prod_url = "https://discovery.tekoapis.com/api/v1/product?sku=" + product.get('sku') + "&location=&terminalCode=phongvu"
             meta= {}
-            match category: 
-                case "/c/vga-card-man-hinh":  meta={'item_type': 'gpu'}
-                case "/c/cpu":  meta={'item_type': 'cpu'}
-                case "/c/mainboard-bo-mach-chu":  meta={'item_type': 'main'}
-                case "/c/psu-nguon-may-tinh":  meta={'item_type': 'psu'}
-                case "/c/ram":  meta={'item_type': 'ram'}
-                case "/c/case":  meta={'item_type': 'case'}
-                case "/c/tan-nhiet-khi":  meta={'item_type': 'cooler', 'sub': 'air'}
-                case "/c/tan-nhiet-nuoc":  meta={'item_type': 'cooler', 'sub': 'air'}
-                case "/c/o-cung-ssd":  meta={'item_type': 'disk', 'sub': 'ssd'}
-                case "/c/o-cung-hdd":  meta={'item_type': 'disk', 'sub': 'ssd'}
+            if category == "/c/vga-card-man-hinh":
+                meta = {'item_type': 'gpu'}
+            elif category == "/c/cpu":
+                meta = {'item_type': 'cpu'}
+            elif category == "/c/mainboard-bo-mach-chu":
+                meta = {'item_type': 'main'}
+            elif category == "/c/psu-nguon-may-tinh":
+                meta = {'item_type': 'psu'}
+            elif category == "/c/ram":
+                meta = {'item_type': 'ram'}
+            elif category == "/c/case":
+                meta = {'item_type': 'case'}
+            elif category == "/c/tan-nhiet-khi" or category == "/c/tan-nhiet-nuoc":
+                meta = {'item_type': 'cooler', 'sub': 'air'}
+            elif category == "/c/o-cung-ssd" or category == "/c/o-cung-hdd":
+                meta = {'item_type': 'disk', 'sub': 'ssd'}
+
             yield scrapy.Request(prod_url, self.parse_item, headers=self.header, meta=meta)     
 
     def parse_item(self, response):

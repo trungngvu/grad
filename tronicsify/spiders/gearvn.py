@@ -27,18 +27,40 @@ class GearvnSpider(scrapy.Spider):
         
         for product in products:
             meta={}
-            match category:
-                case "vga-card-man-hinh":  meta={'item_type': 'gpu'}
-                case "cpu-bo-vi-xu-ly":  meta={'item_type': 'cpu'}
-                case "mainboard-bo-mach-chu":  meta={'item_type': 'main'}
-                case "psu-nguon-may-tinh":  meta={'item_type': 'psu'} 
-                case "ram-pc":  meta={'item_type': 'ram'}
-                case "hdd-o-cung-pc":  meta={'item_type': 'disk', 'sub': 'hdd'}
-                case "ssd-o-cung-the-ran":  meta={'item_type': 'disk', 'sub': 'ssd'}
-                case "case-thung-may-tinh": meta={'item_type': 'case'}
-                case _: 
-                    if "tan-nhiet-nuoc" in category:  meta={'item_type': 'cooler', 'sub': 'aio'}
-                    elif "tan-nhiet-khi" in category:  meta={'item_type': 'cooler', 'sub': 'air'}
+            if category == "vga-card-man-hinh":
+                meta = {'item_type': 'gpu'}
+            elif category == "cpu-bo-vi-xu-ly":
+                meta = {'item_type': 'cpu'}
+            elif category == "mainboard-bo-mach-chu":
+                meta = {'item_type': 'main'}
+            elif category == "psu-nguon-may-tinh":
+                meta = {'item_type': 'psu'} 
+            elif category == "ram-pc":
+                meta = {'item_type': 'ram'}
+            elif category == "hdd-o-cung-pc":
+                meta = {'item_type': 'disk', 'sub': 'hdd'}
+            elif category == "ssd-o-cung-the-ran":
+                meta = {'item_type': 'disk', 'sub': 'ssd'}
+            elif category == "case-thung-may-tinh":
+                meta = {'item_type': 'case'}
+            else:
+                if "tan-nhiet-nuoc" in category:
+                    meta = {'item_type': 'cooler', 'sub': 'aio'}
+                elif "tan-nhiet-khi" in category:
+                    meta = {'item_type': 'cooler', 'sub': 'air'}
+
+            # match category:
+            #     case "vga-card-man-hinh":  meta={'item_type': 'gpu'}
+            #     case "cpu-bo-vi-xu-ly":  meta={'item_type': 'cpu'}
+            #     case "mainboard-bo-mach-chu":  meta={'item_type': 'main'}
+            #     case "psu-nguon-may-tinh":  meta={'item_type': 'psu'} 
+            #     case "ram-pc":  meta={'item_type': 'ram'}
+            #     case "hdd-o-cung-pc":  meta={'item_type': 'disk', 'sub': 'hdd'}
+            #     case "ssd-o-cung-the-ran":  meta={'item_type': 'disk', 'sub': 'ssd'}
+            #     case "case-thung-may-tinh": meta={'item_type': 'case'}
+            #     case _: 
+            #         if "tan-nhiet-nuoc" in category:  meta={'item_type': 'cooler', 'sub': 'aio'}
+            #         elif "tan-nhiet-khi" in category:  meta={'item_type': 'cooler', 'sub': 'air'}
             yield scrapy.Request("https://gearvn.com/products/" + product.get('handle'), self.parse_item, meta=meta)         
 
         if len(products) > 0:
