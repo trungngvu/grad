@@ -223,7 +223,8 @@ class ProductsPipeline:
             for field_name in field_names:
                 if adapter.get(field_name) == "": del adapter[field_name]
                             
-            self.products_collection.insert_one(item)
+            self.products_collection.update_one({'url': adapter['url']}, {'$set': item}, upsert=True)
+
             return item
         else:
             # handle other item types or pass through
