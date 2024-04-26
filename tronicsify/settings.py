@@ -77,8 +77,8 @@ ITEM_PIPELINES = {
    "tronicsify.pipelines.CPUCategoryPipeline": 300,
 }
 
-LOG_FILE = "scrapy_error.log"
-LOG_LEVEL = "ERROR"
+# LOG_FILE = "scrapy_error.log"
+# LOG_LEVEL = "ERROR"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
