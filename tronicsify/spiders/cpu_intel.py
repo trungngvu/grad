@@ -5,9 +5,10 @@ import re
 class CpuIntelSpider(scrapy.Spider):
     name = "cpu_intel"
     allowed_domains = ["ark.intel.com"]
-    start_urls = ["https://ark.intel.com/content/www/us/en/ark/products/series/122139/intel-core-processors.html#@Desktop",
-                  "https://ark.intel.com/content/www/us/en/ark/products/series/29862/intel-pentium-processor.html#@Desktop"
-                  ]
+    start_urls = [
+        # "https://ark.intel.com/content/www/us/en/ark/products/series/122139/intel-core-processors.html#@Desktop",
+        # "https://ark.intel.com/content/www/us/en/ark/products/series/29862/intel-pentium-processor.html#@Desktop"
+    ]
 
     header = {
         'host': 'ark.intel.com'

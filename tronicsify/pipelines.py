@@ -19,13 +19,16 @@ import re
 from urllib.parse import urlparse
 from datetime import datetime
 from slugify import slugify
+from sentence_transformers import SentenceTransformer
 
 # pipelines.py
 class ProductsPipeline:
     def __init__(self):
         # Get the database using the method we defined in pymongo_test_insert file
         self.dbname = get_database()
-        self.productsCollectionName = "products_test"
+        self.productsCollectionName = "products"
+        # https://huggingface.co/keepitreal/vietnamese-sbert
+        self.embedding_model = SentenceTransformer("keepitreal/vietnamese-sbert")
         self.products_collection = self.dbname[self.productsCollectionName]
         
     def process_item(self, item, spider):
@@ -35,7 +38,17 @@ class ProductsPipeline:
             ## Drop item without required field
             required_fields = ['title', 'price']
             for field in required_fields:
-                if adapter.get(field) == "": raise DropItem(f"Missing price in {item}")
+                if adapter.get(field) == "": raise DropItem(f"Missing price or title in {item}")
+
+            def get_embedding(text: str) -> list[float]:
+                if not text.strip():
+                    print("Attempted to get embedding for empty text.")
+                    return []
+
+                embedding = self.embedding_model.encode(text)
+
+                return embedding.tolist()
+            adapter["embedding"] = get_embedding(adapter["title"])
                 
             ## Set product category
             if isinstance(item, GPUItem): adapter['category'] = "gpu"
@@ -235,6 +248,7 @@ class ProductsPipeline:
         cpu_keywords = self.dbname["cpu_category"].distinct("keyword")
         cpu_regex = "|".join(cpu_keywords)
         regex_pattern = r"\b(" + cpu_regex + r")\b"
+        print(regex_pattern)
 
         # Aggregation pipeline
         pipeline = [
@@ -463,9 +477,8 @@ class CPUCategoryPipeline:
                 value = str(adapter.get(key))
                 adapter[key] = convert_to_float(value)   
              
-                     
-                
-            self.cpu_collection.insert_one(item)
+            self.cpu_collection.update_one({'cpu': adapter['cpu']}, {'$set': item}, upsert=True)
+
             return item
         else:
             # handle other item types or pass through

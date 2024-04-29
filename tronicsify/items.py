@@ -22,6 +22,7 @@ class Product(Item):
     availability = scrapy.Field()
     updatedAt = scrapy.Field()
     category = scrapy.Field()
+    embedding = scrapy.Field()
 class GPUCategory(Item):
     brand = scrapy.Field()
     gpu = scrapy.Field()
