@@ -1,0 +1,4 @@
+slugify
+sentence_transformers
+pymongo
+scrapeops-scrapy
