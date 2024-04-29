@@ -12,10 +12,6 @@ BOT_NAME = "tronicsify"
 SPIDER_MODULES = ["tronicsify.spiders"]
 NEWSPIDER_MODULE = "tronicsify.spiders"
 
-FEEDS = {
-    'tronicsify.csv': {'format': 'csv'},
-}
-
 SCRAPEOPS_API_KEY = 'df2efd0f-a1f0-429d-a13f-2ad7d123f07e' # signup at https://scrapeops.io
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
@@ -81,7 +77,7 @@ ITEM_PIPELINES = {
 }
 
 # LOG_FILE = "scrapy_error.log"
-LOG_LEVEL = "ERROR"
+# LOG_LEVEL = "ERROR"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
