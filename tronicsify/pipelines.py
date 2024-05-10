@@ -28,7 +28,7 @@ class ProductsPipeline:
         self.dbname = get_database()
         self.productsCollectionName = "products"
         # https://huggingface.co/keepitreal/vietnamese-sbert
-        self.embedding_model = SentenceTransformer("keepitreal/vietnamese-sbert")
+        self.embedding_model = SentenceTransformer("/bert")
         self.products_collection = self.dbname[self.productsCollectionName]
         
     def process_item(self, item, spider):
