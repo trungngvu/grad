@@ -49,16 +49,6 @@ class ProductsPipeline:
 
                 return embedding.tolist()
             adapter["embedding"] = get_embedding(adapter["title"])
-                
-            ## Set product category
-            if isinstance(item, GPUItem): adapter['category'] = "gpu"
-            elif isinstance(item, CPUItem): adapter['category'] = "cpu"
-            elif isinstance(item, MainboardItem): adapter['category'] = "main"
-            elif isinstance(item, PSUItem): adapter['category'] = "psu"
-            elif isinstance(item, RAMItem): adapter['category'] = "ram"
-            elif isinstance(item, CoolerItem): adapter['category'] = "cooler"
-            elif isinstance(item, DiskItem): adapter['category'] = "disk"
-            elif isinstance(item, CaseItem): adapter['category'] = "case"
             
             ## Normalize brand
             if adapter.get('brand', None):
@@ -235,6 +225,27 @@ class ProductsPipeline:
             field_names = adapter.field_names()
             for field_name in field_names:
                 if adapter.get(field_name) == "": del adapter[field_name]
+                
+            ## Set is buildable
+            adapter['buildable'] = False
+            if isinstance(item, MainboardItem): 
+                if (adapter["socket"] and adapter["size"] and adapter["ram"]):  adapter['buildable'] = True
+                adapter['category'] = "main"
+            elif isinstance(item, PSUItem): 
+                if (adapter["wattage"]):  adapter['buildable'] = True
+                adapter['category'] = "psu"
+            elif isinstance(item, RAMItem): 
+                if (adapter["ram"] and adapter["capacity"]):  adapter['buildable'] = True
+                adapter['category'] = "ram"
+            elif isinstance(item, CoolerItem): 
+                adapter['buildable'] = True
+                adapter['category'] = "cooler"
+            elif isinstance(item, DiskItem): 
+                if (adapter["capacity"]):  adapter['buildable'] = True
+                adapter['category'] = "disk"
+            elif isinstance(item, CaseItem): 
+                if (adapter["size"]):  adapter['buildable'] = True
+                adapter['category'] = "case"
                             
             self.products_collection.update_one({'url': adapter['url']}, {'$set': item}, upsert=True)
 
@@ -270,7 +281,7 @@ class ProductsPipeline:
             },
             {
                 "$addFields": {
-                    "cpuKeyword": "$cpuKeyword.match"
+                    "cpuKeyword": "$cpuKeyword.match",
                 }
             },
             {
@@ -291,6 +302,7 @@ class ProductsPipeline:
                         }
                     },
                     "imgs": 1,
+                    "buildable": True,
                     "category": 1,
                     "title": 1,
                     "description": 1,
@@ -370,7 +382,7 @@ class ProductsPipeline:
             },
             {
                 "$addFields": {
-                    "gpuKeyword": "$gpuKeyword.match"
+                    "gpuKeyword": "$gpuKeyword.match",
                 }
             },
             {
@@ -391,6 +403,7 @@ class ProductsPipeline:
                         }
                     },
                     "imgs": 1,
+                    "buildable": True,
                     "category": 1,
                     "title": 1,
                     "description": 1,
