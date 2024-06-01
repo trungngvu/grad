@@ -304,7 +304,7 @@ class ProductsPipeline:
                     "imgs": 1,
                     "buildable": {
                         "$cond": {
-                        "if": {"$ne": ["$cpu", None]},  # Check if cpu is not null
+                        "if": {"$ne": [{"$size": "$cpu"}, 0]},  # Check if cpu is not null
                         "then": True,  # Set buildable to True
                         "else": False  # Set buildable to False if cpu is null
                         }
@@ -411,7 +411,7 @@ class ProductsPipeline:
                     "imgs": 1,
                     "buildable": {
                         "$cond": {
-                        "if": {"$ne": ["$gpu", None]},  # Check if cpu is not null
+                        "if": {"$ne": [{"$size": "$gpu"}, 0]},  # Check if cpu is not null
                         "then": True,  # Set buildable to True
                         "else": False  # Set buildable to False if cpu is null
                         }
