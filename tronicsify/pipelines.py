@@ -302,7 +302,13 @@ class ProductsPipeline:
                         }
                     },
                     "imgs": 1,
-                    "buildable": True,
+                    "buildable": {
+                        "$cond": {
+                        "if": {"$ne": ["$cpu", None]},  # Check if cpu is not null
+                        "then": True,  # Set buildable to True
+                        "else": False  # Set buildable to False if cpu is null
+                        }
+                    },
                     "category": 1,
                     "title": 1,
                     "description": 1,
@@ -403,7 +409,13 @@ class ProductsPipeline:
                         }
                     },
                     "imgs": 1,
-                    "buildable": True,
+                    "buildable": {
+                        "$cond": {
+                        "if": {"$ne": ["$gpu", None]},  # Check if cpu is not null
+                        "then": True,  # Set buildable to True
+                        "else": False  # Set buildable to False if cpu is null
+                        }
+                    },
                     "category": 1,
                     "title": 1,
                     "description": 1,
